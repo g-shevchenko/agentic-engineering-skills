@@ -1,0 +1,8 @@
+visibility: public-personal
+audience: developers, agent-builders, ai-engineering-teams
+brand: g-shevchenko
+publish_targets:
+  - github: g-shevchenko/agentic-quality-skills
+references: []
+preflight_passed: 2026-06-15
+latest_release: v0.1.1

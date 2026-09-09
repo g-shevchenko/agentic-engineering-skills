@@ -1,0 +1,81 @@
+[
+  {
+    "file": "skills/improve-codebase-architecture/_evals/fixtures/cohesive_risk_scorer/scorer.py",
+    "interface_surface": 2.5,
+    "impl_complexity": 70,
+    "depth_ratio": 28,
+    "band": "deep",
+    "public_symbols": 1,
+    "loc": 40,
+    "factors": [
+      "god_function:score_application:40"
+    ]
+  },
+  {
+    "file": "skills/improve-codebase-architecture/_evals/fixtures/clean_baseline_notifier/notifier.py",
+    "interface_surface": 7,
+    "impl_complexity": 49,
+    "depth_ratio": 7,
+    "band": "balanced",
+    "public_symbols": 3,
+    "loc": 31,
+    "factors": []
+  },
+  {
+    "file": "skills/improve-codebase-architecture/_evals/fixtures/recall_seam_exporter/exporter.py",
+    "interface_surface": 3.5,
+    "impl_complexity": 61,
+    "depth_ratio": 17.43,
+    "band": "deep",
+    "public_symbols": 1,
+    "loc": 31,
+    "factors": []
+  },
+  {
+    "file": "your-service/src/model_lifecycle.py",
+    "interface_surface": 6,
+    "impl_complexity": 43,
+    "depth_ratio": 7.17,
+    "band": "balanced",
+    "public_symbols": 3,
+    "loc": 23,
+    "factors": []
+  },
+  {
+    "file": "your-service/src/summarize.py",
+    "interface_surface": 12,
+    "impl_complexity": 146,
+    "depth_ratio": 12.17,
+    "band": "deep",
+    "public_symbols": 5,
+    "loc": 90,
+    "factors": [
+      "deep_nesting:10"
+    ]
+  },
+  {
+    "file": "your-service/src/transcribe.py",
+    "interface_surface": 9,
+    "impl_complexity": 114,
+    "depth_ratio": 12.67,
+    "band": "deep",
+    "public_symbols": 3,
+    "loc": 77,
+    "factors": [
+      "god_function:groq_transcribe:47",
+      "deep_nesting:4"
+    ]
+  },
+  {
+    "file": "your-service/src/worker.py",
+    "interface_surface": 4,
+    "impl_complexity": 215,
+    "depth_ratio": 53.75,
+    "band": "deep",
+    "public_symbols": 2,
+    "loc": 149,
+    "factors": [
+      "deep_nesting:8"
+    ]
+  }
+]

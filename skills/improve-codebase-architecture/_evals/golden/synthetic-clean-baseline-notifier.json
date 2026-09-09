@@ -1,0 +1,43 @@
+{
+  "id": "synthetic-clean-baseline-notifier",
+  "scope": "skills/improve-codebase-architecture/_evals/fixtures/clean_baseline_notifier/",
+  "description": "Synthetic Fowler-pattern PRECISION fixture (clean baseline). A deliberately well-factored ~60-line notification module that contains structures which LOOK extractable but are NOT deepening opportunities: (1) two send_* functions sharing thin requests.post plumbing (the DRY-vs-deepening trap — extracting a shared _post wrapper is shallow, no depth gain), (2) config-at-edge env reads (the correct pattern), (3) a minimal passthrough getter. A faithful skill run must return ZERO Strong/Worth-exploring candidates. This is the n=2 independent precision test for the DRY-is-not-deepening guard (ADR-0003) — does it GENERALIZE beyond reader-mcp, not just memorize it?",
+  "language": "python",
+  "files_in_scope": [
+    "skills/improve-codebase-architecture/_evals/fixtures/clean_baseline_notifier/notifier.py"
+  ],
+  "last_verified_commit": "synthetic",
+  "last_verified_date": "2026-05-21",
+  "_line_ranges_verified": "2026-05-21 against the bundled fixture (58 lines): config-at-edge env reads 13-16, send_slack/send_telegram thin-plumbing 21-54, get_last_status passthrough 56-58.",
+  "expected_candidates": [],
+  "_design_note_no_expected": "Clean baseline — empty by design. A Strong or Worth-exploring candidate is a precision failure (hard avoidance violation). Up to 1 honestly-hedged Speculative overlapping an avoidance region is tolerated (speculative_overflags_max). The whole point: re-test the DRY-is-not-deepening guard on a FRESH module the skill author did not tune against.",
+  "expected_avoidances": [
+    {
+      "id": "notifier-avoid-001",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/clean_baseline_notifier/notifier.py"],
+      "line_range": [13, 16],
+      "looks_like": "Module-level env-var reads (SLACK_WEBHOOK, TELEGRAM_TOKEN, TELEGRAM_CHAT, TIMEOUT_S)",
+      "why_not_flagged": "Configuration-at-edge is the recommended pattern — read env once at import so the rest of the module is config-free. Flagging this would be the bug, not the code."
+    },
+    {
+      "id": "notifier-avoid-002",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/clean_baseline_notifier/notifier.py"],
+      "line_range": [21, 54],
+      "looks_like": "send_slack() and send_telegram() share near-identical requests.post plumbing (build payload → POST with headers+timeout → status check → _last.update → raise on failure) — looks like extractable duplication",
+      "why_not_flagged": "DRY ≠ deepening. A shared `_post(url, payload)` helper would be a SHALLOW wrapper over requests.post (interface ≈ implementation; requests.post is already the deep module) — duplication removal with no depth gain, below the threshold to flag. The two named functions also read better at call sites (different config preconditions, different payload shapes). A Speculative hedge here is a tolerated soft overflag; a Strong/Worth-exploring flag is a hard precision miss."
+    },
+    {
+      "id": "notifier-avoid-003",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/clean_baseline_notifier/notifier.py"],
+      "line_range": [56, 58],
+      "looks_like": "get_last_status() returns dict(_last) — a one-line passthrough",
+      "why_not_flagged": "It IS the module's minimal read interface (a defensive copy of the last-send state). Inlining `_last` access into callers would scatter the internal state shape and lose the copy boundary. Not a shallow module to delete — the minimal interface is correct."
+    }
+  ],
+  "expected_outcome_summary": {
+    "max_strong": 0,
+    "max_worth_exploring": 0,
+    "max_speculative_overflags": 1,
+    "verdict_if_within_limits": "pass — skill correctly treats a fresh well-factored module as a clean baseline; the DRY-is-not-deepening guard generalizes (does not over-flag the shared requests.post plumbing)."
+  }
+}

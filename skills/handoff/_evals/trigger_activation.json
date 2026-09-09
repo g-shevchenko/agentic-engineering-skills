@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "skill_name": "handoff",
+  "notes": "Handoff fires for operational transfer across sessions/agents and at major plan/execute/verify/ship boundaries. It should not fire for tiny same-thread status updates.",
+  "should_trigger": [
+    {
+      "prompt": "Сделай handoff для Claude Code: я продолжу эту задачу в новой сессии.",
+      "lang": "ru",
+      "reason": "Explicit handoff + Claude Code destination."
+    },
+    {
+      "prompt": "Передай задачу в Codex: нужно продолжить после compaction и не потерять constraints.",
+      "lang": "ru",
+      "reason": "Explicit cross-agent transfer to Codex."
+    },
+    {
+      "prompt": "Prepare next-session context for Cursor. Include first action, blockers, and files in progress.",
+      "lang": "en",
+      "reason": "Next-session context and Cursor destination."
+    },
+    {
+      "prompt": "We are crossing the verify -> ship boundary; create a compact operational handoff for Windsurf.",
+      "lang": "en",
+      "reason": "Major milestone boundary plus Windsurf destination."
+    },
+    {
+      "prompt": "Собери resume prompt для свежего агента по MCP token economy stack, но не раскрывай приватный moat.",
+      "lang": "ru",
+      "reason": "Fresh agent resume plus MCP public/private boundary."
+    }
+  ],
+  "shouldnt_trigger": [
+    {
+      "prompt": "Что дальше?",
+      "lang": "ru",
+      "reason": "Same-thread planning question; no transfer requested."
+    },
+    {
+      "prompt": "Коротко обнови статус по тестам.",
+      "lang": "ru",
+      "reason": "Status update only; no new session or compaction boundary."
+    },
+    {
+      "prompt": "Summarize this article in three bullets.",
+      "lang": "en",
+      "reason": "Plain summarization, not operational transfer."
+    },
+    {
+      "prompt": "Fix the typo in README line 12.",
+      "lang": "en",
+      "reason": "Tiny local edit; no handoff needed."
+    },
+    {
+      "prompt": "Open the Pantheon dashboard.",
+      "lang": "en",
+      "reason": "Navigation request, not handoff."
+    }
+  ]
+}

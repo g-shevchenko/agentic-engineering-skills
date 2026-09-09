@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "skill_name": "improve-codebase-architecture",
+  "notes": "Per SKILL.md: fires for WHOLE-module/service/poddirectory architecture improvement, NOT single-PR fixes. Has human-checkpoints at steps 2 (candidate choice) + 4 (execution).",
+  "should_trigger": [
+    {"prompt": "улучши архитектуру your-module/, она слишком запутанная", "lang": "ru", "reason": "Explicit 'улучши архитектуру' + whole-module scope"},
+    {"prompt": "improve architecture of the contentos pipeline — module dependencies are tangled", "lang": "en", "reason": "Canonical 'improve architecture' + multi-file scope"},
+    {"prompt": "find refactoring opportunities across the hermes-scanner service", "lang": "en", "reason": "Service-wide refactor exploration is the canonical use"},
+    {"prompt": "проведи архитектурный аудит модуля validators/", "lang": "ru", "reason": "RU architecture-audit trigger"},
+    {"prompt": "deepen abstractions in services/vhumanize/content_os/ — there are too many layers", "lang": "en", "reason": "Architecture-depth analysis"}
+  ],
+  "shouldnt_trigger": [
+    {"prompt": "fix the bug in validators/no_phantom_watchers.mjs line 67", "lang": "en", "reason": "Specific-line bug fix → systematic-debugging, not architecture"},
+    {"prompt": "simplify this one function in renderSummary", "lang": "en", "reason": "Single-PR / single-function → simplify skill, not architecture"},
+    {"prompt": "сделай UI компонент покрасивее", "lang": "ru", "reason": "UI polish → polish/design-review, not architecture"},
+    {"prompt": "обнови документацию для services/scraper-core", "lang": "ru", "reason": "Docs update → document-release, not architecture"},
+    {"prompt": "what's the difference between simplify and improve-architecture?", "lang": "en", "reason": "Conceptual Q&A, not a refactor request"}
+  ]
+}

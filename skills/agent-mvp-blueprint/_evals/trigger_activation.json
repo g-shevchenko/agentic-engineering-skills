@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "skill_name": "agent-mvp-blueprint",
+  "notes": "Per SKILL.md: fire for green-field agent design after agentic-architecture-gate triage classifies the task as agent_workflow / side_effecting_workflow / runtime_infra. Do NOT fire for existing-code refactors (→ improve-codebase-architecture) or single-skill design (→ anthropic-skill-creator).",
+  "should_trigger": [
+    {
+      "prompt": "Design a green-field support agent that triages incoming tickets, drafts replies, and proposes escalations.",
+      "lang": "en",
+      "reason": "Canonical green-field design trigger; agent_workflow class."
+    },
+    {
+      "prompt": "Build a customer-success agent harness from scratch — autonomy level 2, approval-gated.",
+      "lang": "en",
+      "reason": "Explicit 'build harness from scratch' + autonomy spec; matches SKILL.md autonomy taxonomy reference."
+    },
+    {
+      "prompt": "Спроектируй MVP агента под legal-research домен с long-running goal loops.",
+      "lang": "ru",
+      "reason": "RU trigger from SKILL.md trigger list; long-running goal = Level 4 territory."
+    },
+    {
+      "prompt": "Нарисуй архитектуру агента для финансового анализа отчётности — где prompts, tools, memory, evals.",
+      "lang": "ru",
+      "reason": "RU trigger; explicitly asks for 15-section blueprint shape."
+    },
+    {
+      "prompt": "Green-field agent MVP for healthcare-record summarization. Risk class: write_internal, autonomy level 2.",
+      "lang": "en",
+      "reason": "Combines domain + risk class + autonomy = full triage shape."
+    }
+  ],
+  "shouldnt_trigger": [
+    {
+      "prompt": "Refactor my existing langchain agent — the loop is too complex.",
+      "lang": "en",
+      "reason": "Existing-code refactor — SKILL.md routes this to improve-codebase-architecture."
+    },
+    {
+      "prompt": "Write me a new skill for cron-job scheduling.",
+      "lang": "en",
+      "reason": "Single skill design — routes to anthropic-skill-creator (vendor skill), NOT a full agent harness."
+    },
+    {
+      "prompt": "Помоги исправить баг в моём существующем агенте — он пропускает шаг verify.",
+      "lang": "ru",
+      "reason": "Bug fix in existing code → systematic-debugging or investigate skill, not green-field MVP design."
+    },
+    {
+      "prompt": "Сделай n8n воркфлоу для отправки писем — никакой LLM не нужен.",
+      "lang": "ru",
+      "reason": "No-LLM scheduled task — pure cron/n8n, not an agent harness."
+    },
+    {
+      "prompt": "Quick question — what's the difference between autonomy level 2 and 3?",
+      "lang": "en",
+      "reason": "Conceptual Q&A, read-only — direct answer, no agent-design exercise."
+    }
+  ]
+}

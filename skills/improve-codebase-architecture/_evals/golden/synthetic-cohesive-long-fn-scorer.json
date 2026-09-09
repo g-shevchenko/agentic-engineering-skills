@@ -1,0 +1,37 @@
+{
+  "id": "synthetic-cohesive-long-fn-scorer",
+  "scope": "skills/improve-codebase-architecture/_evals/fixtures/cohesive_risk_scorer/",
+  "description": "Synthetic PRECISION fixture testing a NEW over-flag mode: a LONG-but-COHESIVE function (the 'this function is 50 lines, decompose it into stages' reflex). score_application() is a single cohesive sequence of risk adjustments — each step reads and mutates the running score/flags from the previous step (compounding_risk depends on prior flags; overextended depends on the running score). It has a SMALL interface (app -> {score,band,flags}) hiding a LARGE implementation = it is ALREADY a deep module (Ousterhout). A faithful skill run must return ZERO Strong/Worth-exploring candidates — splitting it into _income/_credit/_employment stages would thread score+flags through wide parameter lists, making the code SHALLOWER, not deeper. Distinct over-flag mode from thin-DRY (ADR-0003) and config-at-edge (ADR-0005).",
+  "language": "python",
+  "files_in_scope": [
+    "skills/improve-codebase-architecture/_evals/fixtures/cohesive_risk_scorer/scorer.py"
+  ],
+  "last_verified_commit": "synthetic",
+  "last_verified_date": "2026-05-21",
+  "_line_ranges_verified": "2026-05-21 against the bundled fixture (63 lines): config-at-edge env weights 9-10, the cohesive score_application function 13-63.",
+  "expected_candidates": [],
+  "_design_note_no_expected": "Clean baseline — empty by design. Tests that the skill does NOT over-decompose a long cohesive function. A Strong/Worth-exploring 'split into pipeline stages' candidate is a precision failure (hard avoidance violation). Up to 1 honestly-hedged Speculative is tolerated. Note: if a genuinely reusable, state-independent pure sub-unit existed, extracting IT would be legitimate — but this fixture deliberately has none (every step is state-coupled and trivial).",
+  "expected_avoidances": [
+    {
+      "id": "scorer-avoid-001",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/cohesive_risk_scorer/scorer.py"],
+      "line_range": [13, 63],
+      "looks_like": "A ~50-line function — looks like it 'should' be decomposed into _score_income / _score_credit / _score_employment pipeline stages",
+      "why_not_flagged": "It is ALREADY a deep module: a small interface (app -> {score,band,flags}) hiding a large cohesive implementation. The steps are a single sequential procedure with threaded local state — `score` and `flags` are read AND mutated by each step, and later steps DEPEND on earlier ones (compounding_risk reads prior flags; overextended reads the running score). Extracting stages would force threading score+flags through wide parameter lists and returning them — raising interface complexity and making the code SHALLOWER, not deeper. Length here is essential complexity, not a shallowness signal. Don't flag (Ousterhout: long function + small interface = deep)."
+    },
+    {
+      "id": "scorer-avoid-002",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/cohesive_risk_scorer/scorer.py"],
+      "line_range": [9, 10],
+      "looks_like": "Module-top env reads (BASE_SCORE, MIN_INCOME)",
+      "why_not_flagged": "Configuration-at-edge — the correct pattern, not complecting (ADR-0005). Regression-checks the config-at-edge guard on a fresh fixture."
+    }
+  ],
+  "expected_outcome_summary": {
+    "max_strong": 0,
+    "max_worth_exploring": 0,
+    "max_speculative_overflags": 1,
+    "verdict_if_within_limits": "pass — skill recognizes a long cohesive function (small interface, large state-threaded impl) as ALREADY deep and does not over-decompose it; config-at-edge still not flagged.",
+    "failure_modes_this_catches": "(a) over-flags 'decompose this long function into stages' as Strong/Worth (the length-reflex over-flag); (b) regression: re-flags config-at-edge."
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "skill_name": "close-task",
+  "notes": "close-task fires when Greg wants a repo task closed end-to-end, including verification, commit, push, PR, and merge when requested.",
+  "should_trigger": [
+    {
+      "prompt": "Закрой задачу: проверь, закоммить, запушь, сделай PR и merge to main.",
+      "lang": "ru",
+      "reason": "Explicit close plus full git ship path."
+    },
+    {
+      "prompt": "Закрывай, но сначала проверь что всё работает и не забудь PR.",
+      "lang": "ru",
+      "reason": "Close request with verification and PR."
+    },
+    {
+      "prompt": "Close the task and merge it to main if the proof is green.",
+      "lang": "en",
+      "reason": "Explicit close and merge."
+    }
+  ],
+  "shouldnt_trigger": [
+    {
+      "prompt": "Проверь статус задачи, ничего не коммить.",
+      "lang": "ru",
+      "reason": "Status only and explicit no commit."
+    },
+    {
+      "prompt": "Покажи diff по текущей правке.",
+      "lang": "ru",
+      "reason": "Inspection only."
+    },
+    {
+      "prompt": "Сделай локальный smoke test регистрации.",
+      "lang": "ru",
+      "reason": "Verification only, no close intent."
+    }
+  ]
+}

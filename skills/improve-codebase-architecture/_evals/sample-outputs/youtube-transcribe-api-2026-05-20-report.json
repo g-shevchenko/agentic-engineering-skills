@@ -1,0 +1,18 @@
+{
+  "case_id": "hwai-youtube-transcribe-api",
+  "verdict": "pass",
+  "recall": 1,
+  "precision_avoidance": 1,
+  "blast_radius_accuracy": 1,
+  "fabricated_candidates": [],
+  "missed_candidates": [],
+  "missed_strong": [],
+  "violated_avoidances": [],
+  "failures": [],
+  "counts": {
+    "expected": 2,
+    "avoidances": 3,
+    "found": 5,
+    "matched": 2
+  }
+}

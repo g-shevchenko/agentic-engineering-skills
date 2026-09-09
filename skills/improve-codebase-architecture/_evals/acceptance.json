@@ -1,0 +1,33 @@
+{
+  "version": "0.3.0",
+  "last_updated": "2026-05-21",
+  "description": "Pass thresholds for improve-codebase-architecture skill golden eval. v0.3 TIGHTENS precision_avoidance (0.8→0.9) and blast_radius_accuracy (0.5→0.7) — justified by 5 blind golden cases all grading at precision 1.0 / blast 1.0 AND two precision gaps (DRY ADR-0003, config-at-edge ADR-0005) found-and-fixed via blind runs. recall_min stays lenient (0.5): recall has only ONE unbiased dedicated fixture so far (synthetic-recall-seam-exporter); bumping it to 0.8 needs ≥2 more unbiased recall fixtures (thin-data caution per the project rule (see your repo rules)). The v0.2 matching/precision MODEL (file+line-overlap + strength-aware avoidance + Speculative-overflag budget) is unchanged.",
+  "thresholds": {
+    "recall_min": 0.5,
+    "precision_avoidance_min": 0.9,
+    "blast_radius_accuracy_min": 0.7,
+    "fabricated_candidates_max": 0,
+    "missed_strong_recommendations_max": 0,
+    "speculative_overflags_max": 1
+  },
+  "aggregate_pass_rule": "EVERY case must individually meet ALL thresholds. No averaging across cases — a single fail blocks acceptance.",
+  "tightened_in_v0_3": {
+    "precision_avoidance_min": "0.8 → 0.9",
+    "blast_radius_accuracy_min": "0.5 → 0.7",
+    "basis": "5 blind cases (reader-mcp, notifier, scorer clean baselines; exporter recall; youtube multi-file) all at precision_avoidance 1.0 + blast_radius_accuracy 1.0 after the DRY + config-at-edge guards landed. No case sits between the old and new thresholds, so tightening reflects measured reality, not false confidence."
+  },
+  "deferred_tightening": {
+    "recall_min": "0.5 → 0.8",
+    "blocked_on": "≥2 more UNBIASED recall fixtures (a real hidden seam the skill must find). Only synthetic-recall-seam-exporter exists today; youtube recall was a biased same-agent smoke. Premature tightening of recall on n=1 unbiased = false confidence.",
+    "note": "Per the project rule (see your repo rules)."
+  },
+  "scoring_notes": [
+    "recall = |found ∩ expected| / |expected|; case with expected=[] auto-passes recall (vacuously true)",
+    "matching (v0.2): a skill candidate matches a golden item (expected OR avoidance) iff they share a file AND, when BOTH carry a line range, those ranges overlap; if either side omits a line range, fall back to file-only matching (v0.1 behavior). Candidate range = line_range|lines_approx; golden range = line_range.",
+    "precision_avoidance = (avoidances - HARD_violations) / avoidances; case with expected_avoidances=[] auto-passes. A HARD violation = an avoidance overlapped by a Strong or Worth-exploring candidate.",
+    "speculative_overflags (v0.2) = count of avoidances overlapped ONLY by Speculative candidate(s) — the skill hedged rather than recommended; tolerated up to speculative_overflags_max instead of tanking precision.",
+    "blast_radius_accuracy = fraction of matched candidates where skill's blast_radius is within the golden's blast_radius_range (inclusive)",
+    "fabricated_candidates = skill output references files that don't exist in the scope at HEAD",
+    "missed_strong_recommendations = expected_candidates with strength='Strong' not flagged by skill at any strength (line-overlap aware)"
+  ]
+}

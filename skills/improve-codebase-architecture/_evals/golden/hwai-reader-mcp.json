@@ -1,0 +1,43 @@
+{
+  "id": "hwai-reader-mcp",
+  "scope": "your-service/",
+  "description": "Clean baseline — single-file TypeScript MCP wrapping HTML→markdown via scraper-core. The skill should produce ZERO Strong/Worth-exploring recommendations. This case is a false-positive guard: if the skill confidently flags reader-mcp, its precision is broken. Up to 1 honestly-hedged Speculative item in an avoidance region is tolerated (speculative_overflags_max).",
+  "language": "typescript",
+  "files_in_scope": [
+    "your-service/src/index.ts"
+  ],
+  "last_verified_commit": "ec0e185f",
+  "last_verified_date": "2026-05-21",
+  "_line_ranges_verified": "2026-05-21 against your-service/src/index.ts (109 lines): env reads 18-24, request-handler fetch branches 70-97, main() 104-108.",
+  "expected_candidates": [],
+  "_design_note_no_expected": "Clean baseline — empty by design. A Strong or Worth-exploring candidate against reader-mcp is a precision failure (hard avoidance violation). The skill MAY return up to 1 Speculative item (e.g. hwaiHeaders extraction lines 26-34, or lifting the response-shape mapping lines 78-88 into a pure function) — those are honest hedges, counted as soft 'overflags' tolerated up to speculative_overflags_max, not graded against recall. v0.2 made this real via strength-aware precision (see acceptance.json), replacing the v0.1 file-path-only matching that could not distinguish a tolerated Speculative from a hard miss.",
+  "expected_avoidances": [
+    {
+      "id": "reader-mcp-avoid-001",
+      "files": ["your-service/src/index.ts"],
+      "line_range": [18, 24],
+      "looks_like": "Module-level env-var reads (BASE, KEY, MCP_NAME, MCP_VERSION, CONTEXT)",
+      "why_not_flagged": "Configuration-at-edge pattern is correct. Reading env vars in module init (before request handling) is the recommended boundary, not complecting."
+    },
+    {
+      "id": "reader-mcp-avoid-002",
+      "files": ["your-service/src/index.ts"],
+      "line_range": [70, 97],
+      "looks_like": "Two fetch branches (url→/fetch vs html→/extract) in the request handler",
+      "why_not_flagged": "Different upstream endpoints with different request shapes. The branching is a clean dispatcher, not complecting. Extracting a shared postScraperCore() helper would yield a SHALLOW wrapper over fetch (interface ≈ implementation) — DRY without depth gain. Per the deepening-vs-DRY guard, below the threshold to flag as a deepening opportunity."
+    },
+    {
+      "id": "reader-mcp-avoid-003",
+      "files": ["your-service/src/index.ts"],
+      "line_range": [104, 108],
+      "looks_like": "main() function that just calls server.connect",
+      "why_not_flagged": "Entry-point boilerplate. Cannot be deepened — it IS the imperative shell."
+    }
+  ],
+  "expected_outcome_summary": {
+    "max_strong": 0,
+    "max_worth_exploring": 0,
+    "max_speculative_overflags": 1,
+    "verdict_if_within_limits": "pass — skill correctly identified clean baseline. Empty output is the ideal case; up to 1 honestly-hedged Speculative overlapping an avoidance region is tolerated (soft overflag). Any Strong/Worth-exploring overlapping an avoidance = hard precision fail."
+  }
+}

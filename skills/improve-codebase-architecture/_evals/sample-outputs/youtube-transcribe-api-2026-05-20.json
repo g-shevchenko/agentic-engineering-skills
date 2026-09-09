@@ -1,0 +1,57 @@
+[
+  {
+    "id": "smoke-001-summarize-seam",
+    "files": ["your-service/src/summarize.py"],
+    "lines_approx": [40, 87],
+    "kind": "extract_adapter_at_hidden_seam",
+    "deepening_target": "Introduce a `Summarizer` Protocol with two adapters (`LiteLLMSummarizer`, `GeminiDirectSummarizer`) and a thin selector. Currently `_summarize_litellm` and `_summarize_gemini_direct` are sibling private functions; the `summarize()` dispatcher chooses between them via `if config.LITELLM_URL ... elif config.GEMINI_API_KEY`. The seam is real (2 adapters) but unnamed. Adding a third provider (Anthropic direct, OpenAI direct) currently requires modifying the dispatcher; with a Protocol, providers register themselves.",
+    "recommendation_strength": "Strong",
+    "blast_radius": 2,
+    "deletion_test_result": "reappears_in_dispatcher_plus_two_adapters",
+    "rationale": "Two real adapters exist for the same conceptual operation (LLM-summarize). Per LANGUAGE.md: 'A real seam has >= 2 adapters' — qualifies. Pull complexity downward: dispatcher becomes one line; provider-specific JSON shapes (Gemini `responseMimeType` vs LiteLLM `response_format`) hide inside the adapters."
+  },
+  {
+    "id": "smoke-002-model-lifecycle-decomplect",
+    "files": ["your-service/src/transcribe.py"],
+    "lines_approx": [11, 47],
+    "kind": "decomplect_module_lifecycle_vs_logic",
+    "deepening_target": "Extract `ModelLifecycle` module owning `_model` + `_model_loaded_at` + `load_model()` + `maybe_unload()` + `_mem_available_gb()` + `oom_guard()`. Leaves `transcribe.py` focused on transcription business logic (`local_transcribe`, `groq_transcribe`, `diarize`).",
+    "recommendation_strength": "Worth exploring",
+    "blast_radius": 2,
+    "deletion_test_result": "complexity_concentrates_in_extracted_lifecycle_module",
+    "rationale": "Three concerns braided: (1) model lifecycle (load/unload, time-based), (2) host monitoring (psutil mem check), (3) actual transcription. The functional-core / imperative-shell split fits naturally: lifecycle is shell-side, transcription functions are core-side given a loaded model."
+  },
+  {
+    "id": "smoke-003-worker-transcribe-fallback-duplication",
+    "files": ["your-service/src/worker.py"],
+    "lines_approx": [60, 160],
+    "kind": "consolidate_duplicated_pipeline",
+    "deepening_target": "Extract `_transcribe_with_fallback(audio, lang, allow_cloud, with_diarization)` helper. The 30-line oom_guard → local_transcribe → groq_fallback → optional-diarize block is duplicated verbatim between `run_job` (lines ~65-95) and `run_upload_job` (lines ~130-160). One helper, two callers — clean deep module.",
+    "recommendation_strength": "Worth exploring",
+    "blast_radius": 1,
+    "deletion_test_result": "complexity_concentrates_in_one_helper_freeing_two_callers",
+    "rationale": "Real Fowler 'Combine Functions into Function' pattern. The duplication is exact, not similar-looking; the extracted helper would have a clean 4-param interface and ~30 lines of stable logic inside."
+  },
+  {
+    "id": "smoke-004-cache-client-init-duplication",
+    "files": ["your-service/src/cache.py"],
+    "lines_approx": [13, 26],
+    "kind": "minor_helper_consolidation",
+    "deepening_target": "Replace `client()` and `rq_client()` with a single `_make_client(decode: bool)` parameterized factory + two thin accessors. Currently identical lazy-init code, only differing in `decode_responses` arg.",
+    "recommendation_strength": "Speculative",
+    "blast_radius": 0,
+    "deletion_test_result": "ambiguous",
+    "rationale": "Real duplication, but 8 lines total. Extraction would barely shrink the file. Borderline — note for future if Redis client init grows in complexity."
+  },
+  {
+    "id": "smoke-005-worker-runjob-pipeline-stages",
+    "files": ["your-service/src/worker.py"],
+    "lines_approx": [60, 121],
+    "kind": "pipeline_stage_extraction",
+    "deepening_target": "Split `run_job` (~75 lines) into pure stages: `_resolve_cache()`, `_probe_and_route()`, `_transcribe_pipeline()`, `_finalize_and_cache()`. Each stage testable in isolation; orchestrator is a 10-line sequence.",
+    "recommendation_strength": "Speculative",
+    "blast_radius": 1,
+    "deletion_test_result": "ambiguous",
+    "rationale": "Function is long but the pipeline order is its essential complexity — splitting may not earn locality. Mark as future possibility, not v0.1 target."
+  }
+]

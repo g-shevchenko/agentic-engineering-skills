@@ -1,0 +1,92 @@
+{
+  "id": "hwai-youtube-transcribe-api",
+  "scope": "your-service/src/",
+  "description": "Realistic Python multi-file MCP (9 files). Contains one Strong deepening opportunity (sibling adapters at a hidden seam in summarize.py) and one Worth Exploring (complecting in transcribe.py — model lifecycle braided with transcription). v0.2 adds line_range so the transcribe.py lifecycle candidate (ytt-002, lines 10-50) is cleanly distinguished from the transcribe.py groq key-pool avoidance (ytt-avoid-004, lines 71-125), and restores the cache.py + groq-pool avoidances dropped in v0.1.",
+  "language": "python",
+  "_provenance": "Pinned to pre-refactor snapshot ec0e185f, which is exactly the state the frozen sample-outputs/youtube-transcribe-api-2026-05-20.json was produced against. transcribe.py + cache.py are UNCHANGED since ec0e185f so their line ranges are also current-valid. summarize.py was since deepened by PR #883 (Summarizer Protocol), so ytt-001's lines [40,87] describe the pre-refactor seam and are pinned to the frozen sample, NOT current summarize.py. Refreshing this case to post-refactor state (where ytt-001 should NO LONGER be flagged) is README v0.2-P2 work.",
+  "files_in_scope": [
+    "your-service/src/__init__.py",
+    "your-service/src/cache.py",
+    "your-service/src/config.py",
+    "your-service/src/logger.py",
+    "your-service/src/server.py",
+    "your-service/src/summarize.py",
+    "your-service/src/transcribe.py",
+    "your-service/src/worker.py",
+    "your-service/src/youtube.py"
+  ],
+  "last_verified_commit": "ec0e185f",
+  "last_verified_date": "2026-05-21",
+  "expected_candidates": [
+    {
+      "id": "ytt-001",
+      "kind": "extract_adapter_at_hidden_seam",
+      "files": [
+        "your-service/src/summarize.py"
+      ],
+      "line_range": [40, 87],
+      "deepening_target": "Introduce a `Summarizer` Protocol + `LiteLLMSummarizer` adapter + `GeminiDirectSummarizer` adapter + thin dispatcher. The seam already has TWO adapters (`_summarize_litellm` and `_summarize_gemini_direct`) chosen by `if/elif config.LITELLM_URL ... elif config.GEMINI_API_KEY`. The seam is real (>=2 adapters) but hidden — formalizing it makes adding a third provider trivial and isolates per-provider testing.",
+      "expected_recommendation_strength": "Strong",
+      "blast_radius_range": [1, 3],
+      "deletion_test_expected": "reappears_in_dispatcher_and_two_adapters",
+      "rationale": "Per LANGUAGE.md: 'A real seam has ≥ 2 adapters. A seam with 1 adapter is hypothetical — speculative architecture and earns nothing yet.' This case has 2 — the seam IS real, just unnamed.",
+      "ousterhout_pattern": "Pull complexity downward — the dispatcher becomes a one-liner; provider-specific quirks (Gemini's responseMimeType vs LiteLLM's response_format) hide inside the adapters."
+    },
+    {
+      "id": "ytt-002",
+      "kind": "decomplect_model_lifecycle",
+      "files": [
+        "your-service/src/transcribe.py"
+      ],
+      "line_range": [10, 50],
+      "deepening_target": "Extract a `ModelLifecycle` module owning `_model` / `_model_loaded_at` global state + `load_model()` + `maybe_unload()` + `_mem_available_gb()` + `oom_guard()`. Leaves `transcribe.py` focused on the actual transcription business logic (local_transcribe, groq_transcribe, diarize).",
+      "expected_recommendation_strength": "Worth exploring",
+      "blast_radius_range": [1, 2],
+      "deletion_test_expected": "complexity_concentrates_in_extracted_lifecycle_module",
+      "rationale": "Per LANGUAGE.md decomplecting examples: 'IO + computation, Time/clock + scheduling logic'. transcribe.py braids: (1) model lifecycle (load/unload), (2) OOM checking via psutil (sys-level IO), (3) actual transcription. The transcription logic is the deep core; the lifecycle is a separable surface.",
+      "ousterhout_pattern": "Functional core, imperative shell — model lifecycle is shell-side (stateful, IO, time-dependent); transcription functions are core-side (pure given a loaded model). The two should not share a module."
+    }
+  ],
+  "expected_avoidances": [
+    {
+      "id": "ytt-avoid-001",
+      "files": ["your-service/src/config.py"],
+      "looks_like": "Module that is 'just constants'",
+      "why_not_flagged": "Configuration-at-edge is the recommended pattern. config.py centralizes env-var reading so the rest of the codebase is config-free. Flagging this would be the bug, not the code. (Whole-file avoidance — no line_range; nothing in config.py should be flagged.)"
+    },
+    {
+      "id": "ytt-avoid-002",
+      "files": ["your-service/src/cache.py"],
+      "line_range": [13, 26],
+      "looks_like": "client() and rq_client() share a near-identical lazy-init (redis.from_url, differing only by decode_responses=True/False) — looks like extractable duplication",
+      "why_not_flagged": "8 lines of thin lazy-init plumbing. A `_make_client(decode)` factory would be a SHALLOW wrapper (interface ≈ implementation) — DRY without depth gain, below the deepening threshold per the deepening-vs-DRY guard. The two named accessors also read better at call sites than a boolean-flagged factory. RESTORED in v0.2: line_range [13,26] distinguishes this from any legitimate finding elsewhere in cache.py. A Speculative hedge here is a tolerated soft overflag; a Strong/Worth-exploring flag is a hard precision miss."
+    },
+    {
+      "id": "ytt-avoid-003",
+      "files": ["your-service/src/logger.py"],
+      "looks_like": "17-line module",
+      "why_not_flagged": "Logger setup module is correctly small + focused. Suggesting to inline it would un-deepen the codebase. (Whole-file avoidance — no line_range.)"
+    },
+    {
+      "id": "ytt-avoid-004",
+      "files": ["your-service/src/transcribe.py"],
+      "line_range": [71, 125],
+      "looks_like": "groq_transcribe()'s 4-slot key-pool rotation loop (try key → on error rotate to next) — looks like an extractable 'KeyPool' abstraction",
+      "why_not_flagged": "The rotation is deliberately self-contained inside groq_transcribe so the T3 fallback avoids an extra network hop through the Mini's LiteLLM proxy (see the docstring). Extracting a KeyPool helper adds indirection without depth gain and couples transcribe.py to a new abstraction for a single call site. DISTINCT from ytt-002 (model lifecycle, lines 10-50) which IS a valid Worth-exploring; v0.2 line_range [71,125] is what lets the runner tell them apart (this was the v0.1 file-conflict that forced removal)."
+    },
+    {
+      "id": "ytt-avoid-005",
+      "files": ["your-service/src/__init__.py"],
+      "looks_like": "Empty 0-byte module",
+      "why_not_flagged": "Python package marker, not a deepening target. (Whole-file avoidance — no line_range.)"
+    }
+  ],
+  "_restored_in_v0_2": "ytt-avoid-002 (cache.py) and ytt-avoid-004 (transcribe.py groq key-pool) were dropped in v0.1 because the file-path-only runner could not distinguish them from a legitimate finding in the same file (cache.py duplication / transcribe.py lifecycle). v0.2's file+line-overlap matching restores both with line_range so they disambiguate: ytt-002 [10,50] (expected) vs ytt-avoid-004 [71,125] (avoid) no longer collide.",
+  "expected_outcome_summary": {
+    "max_strong": 2,
+    "max_worth_exploring": 3,
+    "max_speculative_overflags": 1,
+    "min_strong_required": 1,
+    "verdict_if_within_limits": "pass — found at least the Strong Summarizer-seam candidate without a hard avoidance violation. A Speculative hedge on the cache.py client duplication (ytt-avoid-002 region) is a tolerated soft overflag."
+  }
+}

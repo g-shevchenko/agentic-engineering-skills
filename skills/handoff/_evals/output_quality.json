@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "skill_name": "handoff",
+  "judge_model": "cerebras-llama",
+  "threshold_contains": 0.85,
+  "notes": "Goldens verify that the handoff output is operational state, not a chat summary. It must preserve first action, suggested skills, files in progress, exact constraints, blockers, and public/private boundary without leaking secrets or MCP moat markers.",
+  "golden_samples": [
+    {
+      "id": "G1-cross-agent-dev-session",
+      "description": "Cross-agent repo handoff must include the first action, files in progress, verification state, and suggested skills.",
+      "input": "Create a handoff for Codex to continue a Pantheon UI/API task. Current state: API test passed, UI e2e pending, files in progress are your-api/src/providers/evals.js and your-ui/app.js. First action should be to run the local Playwright evals spec. Mention that .claude/scheduled_tasks.lock is unrelated and must not be touched.",
+      "expected_output_contains": [
+        "Compaction Handoff",
+        "First action",
+        "Suggested skills",
+        "Files in progress",
+        "your-api/src/providers/evals.js",
+        "your-ui/app.js",
+        ".claude/scheduled_tasks.lock",
+        "Playwright"
+      ],
+      "expected_output_excludes": [
+        "everything is done",
+        "git reset --hard",
+        "just summarize"
+      ],
+      "rubric": [
+        {
+          "criterion": "Operational shape",
+          "weight": 0.25,
+          "pass_if": "Uses the compaction handoff shape and includes first action."
+        },
+        {
+          "criterion": "State preservation",
+          "weight": 0.35,
+          "pass_if": "Preserves exact files and unrelated dirty file constraint."
+        },
+        {
+          "criterion": "Verification continuity",
+          "weight": 0.25,
+          "pass_if": "Names the pending Playwright verification."
+        },
+        {
+          "criterion": "No destructive instruction",
+          "weight": 0.15,
+          "pass_if": "Does not propose broad rollback or reset."
+        }
+      ]
+    },
+    {
+      "id": "G2-mcp-token-public-boundary",
+      "description": "MCP token economy handoff must preserve public/private boundary and avoid moat leakage.",
+      "input": "Prepare a handoff for a fresh Claude Code session to continue the MCP token economy article wrapper. It should mention public publication on gregshevchenko.com/GitHub/dev.to/LinkedIn/Reddit, use public-safe generic methods, and explicitly avoid leaking private HWAI moat details or scraper/gateway internals.",
+      "expected_output_contains": [
+        "Public/private boundary",
+        "MCP token economy",
+        "gregshevchenko.com",
+        "GitHub",
+        "dev.to",
+        "LinkedIn",
+        "Reddit",
+        "mcp-stack-moat-guard"
+      ],
+      "expected_output_excludes": [
+        "PRIVATE_API_KEY",
+        "private-cdn.example",
+        "203.0.113.10",
+        "private.gateway",
+        "private-capture-helper"
+      ],
+      "rubric": [
+        {
+          "criterion": "Publication routing",
+          "weight": 0.25,
+          "pass_if": "Names the requested publication surfaces."
+        },
+        {
+          "criterion": "Boundary preservation",
+          "weight": 0.45,
+          "pass_if": "Explicitly states public/private boundary and cites mcp-stack-moat-guard."
+        },
+        {
+          "criterion": "Moat leak prevention",
+          "weight": 0.3,
+          "pass_if": "Does not include banned private markers."
+        }
+      ]
+    },
+    {
+      "id": "G3-long-noisy-input",
+      "description": "Long/noisy input handoff should route through context-prep rather than paste logs.",
+      "input": "I pasted 900 lines of CI output and terminal logs above. Create a handoff for Windsurf that preserves the blocker, the first failing command, and the next smallest retry. Do not paste the full logs.",
+      "expected_output_contains": [
+        "context-prep",
+        "First action",
+        "blocker",
+        "failing command",
+        "Windsurf",
+        "do not paste"
+      ],
+      "expected_output_excludes": [
+        "full log follows",
+        "900 lines",
+        "raw terminal dump"
+      ],
+      "rubric": [
+        {
+          "criterion": "Context hygiene",
+          "weight": 0.4,
+          "pass_if": "Uses context-prep or artifact reference instead of copying logs."
+        },
+        {
+          "criterion": "Actionability",
+          "weight": 0.4,
+          "pass_if": "Includes first action and failing command."
+        },
+        {
+          "criterion": "Destination awareness",
+          "weight": 0.2,
+          "pass_if": "Names Windsurf-specific continuation."
+        }
+      ]
+    }
+  ]
+}

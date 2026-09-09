@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "skill_name": "improve-codebase-architecture",
+  "notes": "Goldens for the structural shape of improve-architecture output. Skill produces ranked candidate refactors with depth-deepening (not DRY-flattening), each with human-checkpoint gates per SKILL.md.",
+  "golden_samples": [
+    {
+      "id": "G1",
+      "description": "Service with tangled module deps — propose 3 ranked refactor candidates.",
+      "input": "your-module/ has 47 module imports across 12 files with circular dependency warnings. Improve architecture.",
+      "expected_output_contains": [
+        "candidate",
+        "depth",
+        "checkpoint",
+        "human"
+      ],
+      "expected_output_excludes": [
+        "DRY",
+        "extract function"
+      ],
+      "rubric": [
+        {"criterion": "Lists multiple candidates ranked", "weight": 0.4, "pass_if": "Output names ≥2 candidate refactors with ranking/priority signal."},
+        {"criterion": "Mentions depth-deepening over DRY-flattening", "weight": 0.3, "pass_if": "Output explicitly distinguishes deepening (Protocol/Strategy/Bounded-Context split) from DRY extraction."},
+        {"criterion": "Surfaces human-checkpoint gates", "weight": 0.3, "pass_if": "Output mentions checkpoints at candidate-selection AND/OR execution before code edits."}
+      ]
+    },
+    {
+      "id": "G2",
+      "description": "Recently-shipped feature — find post-feature consolidation opportunities.",
+      "input": "Just shipped the secrets validator (PRs T8/T11/T12 — 11 new patterns + 9 placeholder filters). Find architecture improvements before next feature.",
+      "expected_output_contains": [
+        "consolidate",
+        "pattern",
+        "filter",
+        "depth"
+      ],
+      "expected_output_excludes": [
+        "rewrite from scratch",
+        "delete everything"
+      ],
+      "rubric": [
+        {"criterion": "Identifies repeated structure", "weight": 0.4, "pass_if": "Output names a concrete repeated pattern across the 11 new regexes or 9 filters."},
+        {"criterion": "Proposes scoped consolidation (not big rewrite)", "weight": 0.4, "pass_if": "Proposed refactor is bounded; does not suggest 'rewrite from scratch'."},
+        {"criterion": "References measurable success criterion", "weight": 0.2, "pass_if": "Output ties refactor to a measurable thing (line count, cyclomatic complexity, test count)."}
+      ]
+    }
+  ]
+}

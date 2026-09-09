@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "skill_name": "agent-mvp-blueprint",
+  "notes": "Goldens for the structural shape of agent-mvp-blueprint output. Skill produces a 15-section blueprint covering loop / tools / permissions / planning / goals / context / skills / caching / observability / evals / launch. Output_quality goldens check that key sections appear and that the autonomy/risk taxonomy is referenced.",
+  "golden_samples": [
+    {
+      "id": "G1",
+      "description": "Support agent design — Level 2 approval-gated, write_external risk.",
+      "input": "Design an agent for a SaaS support team. Triages incoming tickets, drafts replies, proposes escalations. Should NOT autonomously close tickets.",
+      "expected_output_contains": [
+        "autonomy",
+        "draft",
+        "approval",
+        "write_external",
+        "compaction",
+        "evals",
+        "tool-risk-taxonomy"
+      ],
+      "expected_output_excludes": [
+        "level 5",
+        "destructive"
+      ],
+      "rubric": [
+        {
+          "criterion": "References tool-risk-taxonomy.md for risk class",
+          "weight": 0.3,
+          "pass_if": "Output mentions 'tool-risk-taxonomy' or explicitly names one of the 15 risk classes."
+        },
+        {
+          "criterion": "Picks a sane default autonomy level (1 or 2)",
+          "weight": 0.3,
+          "pass_if": "Output specifies Level 1 (draft-only) or Level 2 (approval-gated); does NOT default to Level 3+."
+        },
+        {
+          "criterion": "Includes evals section with measurable done condition",
+          "weight": 0.2,
+          "pass_if": "Output has §11 Evals or 'eval' section with at least one specific metric."
+        },
+        {
+          "criterion": "References compaction-handoff-format for long-running state",
+          "weight": 0.2,
+          "pass_if": "Output mentions 'compaction-handoff-format' or describes durable handoff."
+        }
+      ]
+    },
+    {
+      "id": "G2",
+      "description": "Read-only research agent — Level 0/1, no side effects.",
+      "input": "Design a research agent that summarizes academic papers and surfaces top 3 quotes per paper. No external writes.",
+      "expected_output_contains": [
+        "autonomy",
+        "read_only",
+        "draft",
+        "evals",
+        "compaction"
+      ],
+      "expected_output_excludes": [
+        "write_external",
+        "destructive",
+        "financial"
+      ],
+      "rubric": [
+        {
+          "criterion": "Identifies read_only / search_only / compute_only as the dominant risk classes",
+          "weight": 0.4,
+          "pass_if": "Output names read_only or compute_only explicitly; does NOT misclassify as write_internal."
+        },
+        {
+          "criterion": "Defaults to Level 0 or Level 1 autonomy",
+          "weight": 0.3,
+          "pass_if": "Output picks Level 0 (answer-only) or Level 1 (draft-only); avoids Level 2+ for read-only work."
+        },
+        {
+          "criterion": "Includes citation / source verification step",
+          "weight": 0.3,
+          "pass_if": "Output explicitly mentions citation, source verification, or quote validation step."
+        }
+      ]
+    }
+  ]
+}

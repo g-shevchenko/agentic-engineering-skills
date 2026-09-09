@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "skill_name": "close-task",
+  "judge_model": "cerebras-llama",
+  "threshold_contains": 0.8,
+  "notes": "Goldens check that close-task does not stop at verbal completion and preserves dirty-tree safety.",
+  "golden_samples": [
+    {
+      "id": "G1-close-repo-task",
+      "description": "A close request must include verification, staging discipline, commit, push, PR, and merge/blocker reporting.",
+      "input": "Greg says: закрой задачу. The repo has unrelated dirty files and a Pantheon UI fix ready. Describe the close-task procedure.",
+      "expected_output_contains": [
+        "git status",
+        "unrelated dirty files",
+        "stage only",
+        "tests",
+        "commit",
+        "push",
+        "PR",
+        "merge",
+        "proof"
+      ],
+      "expected_output_excludes": [
+        "git reset --hard",
+        "stage everything",
+        "done without commit"
+      ],
+      "rubric": [
+        {
+          "criterion": "End-to-end closure",
+          "weight": 0.45,
+          "pass_if": "Includes verification, commit, push, PR, and merge or blocker."
+        },
+        {
+          "criterion": "Dirty-tree safety",
+          "weight": 0.35,
+          "pass_if": "Stages only intended files and calls out unrelated dirty files."
+        },
+        {
+          "criterion": "No destructive git",
+          "weight": 0.2,
+          "pass_if": "Does not propose reset/checkout broad rollback."
+        }
+      ]
+    }
+  ]
+}

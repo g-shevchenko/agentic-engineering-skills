@@ -1,0 +1,41 @@
+{
+  "id": "synthetic-recall-seam-exporter",
+  "scope": "skills/improve-codebase-architecture/_evals/fixtures/recall_seam_exporter/",
+  "description": "Synthetic RECALL fixture (the first blind recall test — all prior blind runs were precision/clean-baselines). A ~56-line exporter module with a GENUINE unnamed multi-adapter seam: export_report() dispatches on fmt to three sibling adapters (_export_csv / _export_json / _export_parquet) with substantively DIFFERENT logic. Per LANGUAGE.md ('a real seam has ≥2 adapters') this IS a real deepening opportunity — formalize an Exporter Protocol + adapters + registry. The skill MUST find it (Strong/Worth). Doubles as a guard-balance test: confirm the DRY-is-not-deepening guard (ADR-0003) does NOT over-suppress a genuine ≥2-adapter seam (it isn't thin-plumbing DRY — the adapters differ: csv flattening, json envelope, parquet/pyarrow).",
+  "language": "python",
+  "files_in_scope": [
+    "skills/improve-codebase-architecture/_evals/fixtures/recall_seam_exporter/exporter.py"
+  ],
+  "last_verified_commit": "synthetic",
+  "last_verified_date": "2026-05-21",
+  "_line_ranges_verified": "2026-05-21 against the bundled fixture (56 lines): config-at-edge env reads 9-10, the seam (export_report dispatcher + _export_csv/_export_json/_export_parquet adapters) 13-56.",
+  "expected_candidates": [
+    {
+      "id": "exporter-seam",
+      "kind": "extract_adapter_at_hidden_seam",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/recall_seam_exporter/exporter.py"],
+      "line_range": [13, 56],
+      "deepening_target": "Introduce an `Exporter` Protocol + `CsvExporter` / `JsonExporter` / `ParquetExporter` adapters + a format→adapter registry; export_report() becomes a one-line lookup+dispatch. The seam already has THREE real adapters chosen by `if/elif fmt`; it is real but unnamed. Formalizing makes adding a 4th format (xlsx) a registry entry instead of a dispatcher edit, and isolates per-format testing.",
+      "expected_recommendation_strength": "Strong",
+      "blast_radius_range": [0, 2],
+      "deletion_test_expected": "reappears_in_dispatcher_and_three_adapters",
+      "rationale": "Per LANGUAGE.md: 'A real seam has ≥ 2 adapters.' Here there are 3, each with substantively different implementation (csv flattening of nested values, json {rows,count} envelope, pyarrow table + compression). This is genuine deepening — NOT the thin-plumbing DRY the DRY-is-not-deepening guard suppresses. Pull complexity downward: dispatcher → registry lookup; per-format quirks hide inside the adapters.",
+      "ousterhout_pattern": "Pull complexity downward (mirror of the real summarize.py Summarizer-Protocol win, ADR-0001)."
+    }
+  ],
+  "expected_avoidances": [
+    {
+      "id": "exporter-avoid-001",
+      "files": ["skills/improve-codebase-architecture/_evals/fixtures/recall_seam_exporter/exporter.py"],
+      "line_range": [9, 10],
+      "looks_like": "Module-level env reads (DEFAULT_FMT, COMPRESSION)",
+      "why_not_flagged": "Configuration-at-edge is the recommended pattern, not complecting. Flagging it would be the bug."
+    }
+  ],
+  "expected_outcome_summary": {
+    "min_strong_required": 1,
+    "max_speculative_overflags": 1,
+    "verdict_if_within_limits": "pass — skill FINDS the real 3-adapter exporter seam (Strong or Worth-exploring) and does NOT over-flag config-at-edge. Validates recall AND that the DRY guard does not suppress genuine multi-adapter seams.",
+    "failure_modes_this_catches": "(a) MISSES the seam (recall gap); (b) UNDER-RATES it as Speculative because the DRY guard over-corrected (the guard suppressing real seams = a regression introduced by ADR-0003)."
+  }
+}
