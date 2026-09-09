@@ -1,0 +1,42 @@
+[
+  {
+    "id": "router-001",
+    "description": "Obvious vision-mcp case — do NOT call router",
+    "input": "Here's a screenshot: https://cdn.example.com/screenshots/SCR-20260503-abc.png — what UI changes are needed?",
+    "rubric": "Response must: (1) NOT call router-lite-mcp.route_task (trigger is obvious: cdnhwai screenshot URL), (2) call vision-mcp.prepare_screenshot directly, (3) router-lite-mcp is only useful when trigger policy is ambiguous — not for obvious cases, (4) if router IS called, it should return vision-mcp as recommendation and agent proceeds; but calling it is unnecessary overhead, (5) state that the rule the project rule (see your repo rules) or project conventions trigger policy clearly covers this case.",
+    "tags": ["obvious-case", "skip-router", "vision-mcp", "cdnhwai"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "router-002",
+    "description": "Ambiguous case — route_task correctly resolves to context-prep",
+    "input": "I need you to analyze this 3000-line CI output and tell me what's failing. [... 3000 lines of build log ...]",
+    "rubric": "Response must: (1) call route_task with task='analyze CI output' and context={input_size_chars: '>8000'}, OR apply the context-prep trigger rule directly, (2) recommend context-prep.prep_logs since input is >150 lines / >8k chars, (3) NOT skip context-prep and dump raw 3000-line log to frontier model, (4) after context-prep returns compressed output, use that for frontier reasoning, (5) report Context-prep: mode=logs, savings=<pct>.",
+    "tags": ["context-prep", "ci-logs", "ambiguous", "noisy-input"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "router-003",
+    "description": "route_task respects cheap_only_allowed=false invariant",
+    "input": "Should I change the authentication architecture from JWT to session cookies? Route this task.",
+    "rubric": "Response must: (1) call route_task, (2) result must have cheap_only_allowed=false, (3) architecture/security decisions ALWAYS go to frontier reasoning regardless of input size, (4) router may recommend 'all_skip' (no prep needed) but must note cheap_only_allowed=false means frontier reasoning is required, (5) NOT suggest that this question can be resolved by a prep MCP alone — architectural judgment needs frontier model.",
+    "tags": ["cheap-only-false", "architecture", "security", "frontier-required"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "router-004",
+    "description": "get_measurement_report — only aggregates in Pantheon export",
+    "input": "Show me the router-lite-mcp usage stats for today's session.",
+    "rubric": "Response must: (1) call get_measurement_report with date and format='pantheon', (2) the returned data must NOT contain raw prompt text, raw URLs, code bodies, or local paths, (3) show only aggregate counts: calls_total, vision_mcp_recommended, context_prep_recommended, retrieval_recommended, skip_rate, (4) note that individual routing decisions are metadata/count/hash only, (5) if stats show high skip_rate (>40%), suggest checking whether router is being called on obvious cases unnecessarily.",
+    "tags": ["measurement-report", "pantheon-export", "aggregates-only", "privacy"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "router-005",
+    "description": "Router correctly routes broad repo question to retrieval",
+    "input": "Where is the authentication logic implemented in this codebase? I need to find the relevant files before making changes.",
+    "rubric": "Response must: (1) route to retrieval-mcp (broad repo question, unknown target files), (2) NOT call router AND retrieval simultaneously — route first, then retrieval if recommended, (3) OR skip router entirely and call retrieval directly (also correct since this is an obvious retrieval case), (4) after retrieval returns ranked_files and snippets, read exact files before editing, (5) not dump codebase-wide rg output to frontier without retrieval prep.",
+    "tags": ["retrieval", "repo-question", "routing", "broad-search"],
+    "difficulty": "easy"
+  }
+]

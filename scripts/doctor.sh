@@ -24,7 +24,7 @@ need_file LICENSE
 need_file scripts/install.sh
 need_file scripts/audit-public-surface.sh
 
-for skill in agent-mvp-blueprint handoff overnight-task-queue restricted-tool-subagent json-feature-ledger close-task improve-codebase-architecture; do
+for skill in agent-mvp-blueprint handoff overnight-task-queue restricted-tool-subagent json-feature-ledger close-task improve-codebase-architecture context-prep retrieval router-lite-mcp; do
   need_dir "skills/$skill"
   need_file "skills/$skill/SKILL.md"
   grep -q "^name:" "skills/$skill/SKILL.md" || fail "missing name in skills/$skill/SKILL.md"

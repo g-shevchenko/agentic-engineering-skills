@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cp-001",
+    "description": "Long CI output — use prep_logs, not raw dump to frontier",
+    "input": "Here's our full CI output from today's failed run. [... 400 lines of Jest + TypeScript + ESLint output ...]",
+    "rubric": "Response must: (1) call prep_logs with the CI output content, NOT send raw 400 lines to frontier model, (2) use compact_context + error_clusters from result for reasoning, (3) if confidence.uncertainty > 0.03, call get_artifact before diagnosing, (4) NOT skip context-prep because 'the user already pasted it' — large noisy inputs ALWAYS go through prep_logs, (5) report Context-prep: mode=logs, savings=<pct>.",
+    "tags": ["prep-logs", "ci-output", "no-raw-dump", "savings"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "cp-002",
+    "description": "Public URL — use prep_url with correct parser_stack",
+    "input": "Can you read and summarize the Anthropic API docs page at https://docs.anthropic.com/en/api/getting-started?",
+    "rubric": "Response must: (1) call prep_url with the URL (NOT WebFetch directly), (2) use parser_stack='local' for docs.anthropic.com (simple public docs page, no JS challenge), (3) if page returns low extraction volume, prep_url auto-escalates to scraper_core — agent does not need to manually retry, (4) use compact result for summary, (5) if preserve_exact matters (quoting API rate limits), use get_artifact, (6) report Context-prep: mode=url, parser=local.",
+    "tags": ["prep-url", "parser-stack-local", "public-url", "summary"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "cp-003",
+    "description": "Long pasted spec — use prep_text, not read raw",
+    "input": "Here's the full product spec from our Notion export for the new checkout redesign. [... 12k chars of spec text with headers, tables, and edge cases ...]",
+    "rubric": "Response must: (1) call prep_text with mode='spec' (pasted specification text), (2) report savings percentage, (3) if exact wording matters (acceptance criteria, legal terms, pricing), call get_artifact for those sections, (4) NOT dump the full 12k char spec into the frontier model prompt, (5) NOT skip context-prep because 'it's already in context' — input >5k chars = prep_text trigger.",
+    "tags": ["prep-text", "spec", "12k-chars", "preserve-exact"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "cp-004",
+    "description": "ContentOS integration — only for noisy inputs, not every call",
+    "input": "Use ContentOS to generate a blog post about AI in marketing. Here's the source article to use as reference: [... 9k chars of scraped HTML ...]",
+    "rubric": "Response must: (1) run prep_url OR prep_text on the 9k source content BEFORE sending to ContentOS pipeline (noisy HTML = good candidate for prep), (2) use compact_context as ContentOS input rather than raw HTML, (3) NOT add context-prep to every ContentOS call — only when the input is noisy/large, (4) for a short editorial prompt like 'write a post about X' — skip context-prep entirely, (5) report Context-prep: mode=text, savings=<pct> then ContentOS pipeline result.",
+    "tags": ["contentos-integration", "conditional-use", "noisy-source", "savings"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "cp-005",
+    "description": "Quality gate — uncertainty > 0.03 means read artifact before code changes",
+    "input": "I need you to implement the changes described in this 6k-char technical handoff doc. [... doc pasted ...]",
+    "rubric": "Response must: (1) call prep_text with mode='handoff' on the doc, (2) if confidence.uncertainty > 0.03 OR autopilot.requires_clarification=true, call get_artifact to read the raw cleaned content before implementing, (3) NOT proceed to code edits based on compact output alone when uncertainty is high, (4) show the extracted tasks as a list and ask ONE clarifying question if uncertainty fires, (5) quality beats token savings — always apply the uncertainty gate.",
+    "tags": ["uncertainty-gate", "quality-guardrail", "get-artifact", "handoff"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "cp-006",
+    "description": "Skip context-prep for short prompt — no overhead needed",
+    "input": "What's the difference between JWT and session cookies for auth?",
+    "rubric": "Response must: (1) NOT call context-prep — short conceptual question, no large noisy input, (2) answer directly from frontier reasoning, (3) context-prep would add unnecessary ~30ms network hop with zero savings, (4) ONLY trigger context-prep when: logs >150 lines, text >5k chars, concrete URL to read, pasted spec >5k chars, (5) if router-lite-mcp is called, it should return 'all_skip' for context-prep on this input.",
+    "tags": ["skip-context-prep", "short-question", "no-overhead", "trigger-policy"],
+    "difficulty": "easy"
+  }
+]

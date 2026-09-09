@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ret-001",
+    "description": "Broad repo question — trigger retrieve_context, NOT raw rg",
+    "input": "Where is the authentication logic implemented? I need to find the relevant files before making changes.",
+    "rubric": "Response must: (1) call retrieve_context with the auth query, NOT dump a broad rg search, (2) include root_path and task_intent='bug_fix' or 'implementation', (3) use ranked_files to identify candidates, (4) read the exact returned files before editing, (5) NOT call router AND retrieval simultaneously — retrieval is the correct direct action here (obvious retrieval case).",
+    "tags": ["broad-repo", "trigger", "no-rg-dump", "read-before-edit"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "ret-002",
+    "description": "Read before edit — retrieval is prep, not the final answer",
+    "input": "Fix the bug in the JWT refresh token handler — it's not updating the session correctly.",
+    "rubric": "Response must: (1) call retrieve_context first to find jwt/refresh/session files (target files unknown), (2) read the exact returned file(s) in full before proposing edits, (3) NOT edit directly based only on ranked_files list without reading content, (4) if uncertainty > 0.03, call get_artifact before editing, (5) report the actual file paths read before the fix.",
+    "tags": ["read-before-edit", "bug-fix", "quality-gate", "uncertainty"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ret-003",
+    "description": "record_feedback after retrieval miss — discipline not optional",
+    "input": "I used retrieval to find the logging config files, but it ranked middleware.ts first when the actual issue was in logger.ts which was rank #7.",
+    "rubric": "Response must: (1) call record_feedback with outcome='partial', frontier_had_to_search=true, (2) include the call_id from the original retrieve_context call, (3) include missing_paths with logger.ts, (4) set benchmark_candidate=true (under-ranked file = golden benchmark candidate), (5) NOT add filler 'helpful' feedback — this is a real partial miss, (6) notes should be safe (no code bodies, no secrets).",
+    "tags": ["record-feedback", "partial-miss", "benchmark-candidate", "discipline"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ret-004",
+    "description": "context_hints are metadata-only — no file bodies in hints",
+    "input": "I have the auth middleware open in my editor (src/middleware/auth.ts) and I'm looking at the JWT validation. Help me find related tests.",
+    "rubric": "Response must: (1) call retrieve_context with task_intent='test', (2) pass context_hints.open_files=['src/middleware/auth.ts'] as path hint ONLY — do NOT include file body content in hints, (3) pass context_hints.selected_paths=['src/middleware/'] to boost ranking, (4) NOT read auth.ts again just to pass its body as context — the path hint is sufficient signal, (5) read returned test files before suggesting changes.",
+    "tags": ["context-hints", "metadata-only", "no-file-bodies", "open-files"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ret-005",
+    "description": "Skip retrieval for known file — direct Read is cheaper",
+    "input": "Show me the content of your-module/catalog.ts",
+    "rubric": "Response must: (1) NOT call retrieve_context — the exact file path is given, (2) call Read directly on the specified path, (3) retrieval adds latency (~30ms+) for no benefit when path is known, (4) if a broad follow-up question arises ('find related files'), THEN trigger retrieval, (5) NOT say 'let me search for this file' when the path was already provided.",
+    "tags": ["skip-retrieval", "known-path", "direct-read", "no-overhead"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "ret-006",
+    "description": "Attribution metadata required on every production call",
+    "input": "As the Claude Code agent running in this repo, find where the Pantheon catalog validation logic lives.",
+    "rubric": "Response must: (1) call retrieve_context with metadata.surface='claude' (Claude Code surface), (2) use metadata.source='production' (real agent call, not proof/benchmark), (3) NOT omit metadata — it populates the daily Pantheon export traffic-class split, (4) the measurement report would show this as 'production_like' traffic, (5) if running as part of a proof/smoke run, use source='proof' instead.",
+    "tags": ["attribution-metadata", "surface", "source", "pantheon-export"],
+    "difficulty": "easy"
+  }
+]

@@ -142,6 +142,9 @@ copy_skill restricted-tool-subagent
 copy_skill json-feature-ledger
 copy_skill close-task
 copy_skill improve-codebase-architecture
+copy_skill context-prep
+copy_skill retrieval
+copy_skill router-lite-mcp
 
 if [[ "$AGENT_DOCS" == "write" ]]; then
   write_agent_docs

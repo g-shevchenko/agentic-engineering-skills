@@ -3,7 +3,7 @@
 
 Installed skills: `agent-mvp-blueprint`, `handoff`, `overnight-task-queue`,
 `restricted-tool-subagent`, `json-feature-ledger`, `close-task`,
-`improve-codebase-architecture`.
+`improve-codebase-architecture`, `context-prep`, `retrieval`, `router-lite-mcp`.
 
 Trigger phrases:
 - `use agentic engineering stack` — all 7 skills

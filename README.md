@@ -48,6 +48,9 @@ bash scripts/install.sh --target "$HOME/.codex/skills"
 | `json-feature-ledger` | feature_list.json contract — 70-85% token savings on verifier→fixer handoff | `use json feature ledger` |
 | `close-task` | Full closure gates — merge+deploy+smoke+cleanup+handoff in all touched repos | `use close task` |
 | `improve-codebase-architecture` | 6-phase refactor loop: Explore→Report→Design→Execute→Document→Measure | `use improve codebase architecture` |
+| `context-prep` | Companion skill for context-prep-mcp — long logs, CI output, pasted specs compaction | `use context prep` |
+| `retrieval` | Companion skill for retrieval-mcp — local-first codebase context retrieval | `use retrieval` |
+| `router-lite-mcp` | Companion skill for router-lite-mcp — deterministic trigger/skip classifier for MCP selection | `use router lite` |
 
 ## Composes With
 
