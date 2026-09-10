@@ -13,6 +13,12 @@ Created from production operating patterns, rewritten as a self-contained
 public package. No Workspace dependencies, no internal infrastructure — works
 in any repo with any agent.
 
+> **Deep-dive write-up:** *Agentic Engineering Skills — open-source patterns
+> for AI agents* — the research article behind this repo, with the operating
+> patterns, skill categories, and how they compose with the MCP token-saver
+> stack.
+> [Read it on gregshevchenko.com](https://gregshevchenko.com/research/agentic-engineering-skills/).
+
 ## Table of Contents
 
 - [Quick Start](#quick-start)
